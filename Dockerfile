@@ -1,6 +1,9 @@
 # Use Node.js 18 Alpine for smaller image size
 FROM node:18-alpine AS base
 
+# Pin npm to a consistent version for all stages
+RUN npm i -g npm@11.8.0 && npm --version
+
 # Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
