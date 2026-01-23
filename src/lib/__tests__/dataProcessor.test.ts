@@ -15,6 +15,7 @@ import type { TaskWithStatus } from '@/types';
 // Minimal test globals to satisfy TypeScript without a test runner's types
 declare function describe(name: string, fn: () => void): void;
 declare function test(name: string, fn: () => void): void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare function expect(value: unknown): any;
 
 /**
