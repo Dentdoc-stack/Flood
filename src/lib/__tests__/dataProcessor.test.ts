@@ -12,6 +12,11 @@
 import { groupTasksBySite, computeKPIs } from '../dataProcessor';
 import type { TaskWithStatus } from '@/types';
 
+// Minimal test globals to satisfy TypeScript without a test runner's types
+declare function describe(name: string, fn: () => void): void;
+declare function test(name: string, fn: () => void): void;
+declare function expect(value: unknown): any;
+
 /**
  * Helper: Create a minimal test task
  */
@@ -31,7 +36,8 @@ function createTestTask(overrides: Partial<TaskWithStatus>): TaskWithStatus {
         discipline: 'General',
         task_name: 'Test Task',
 
-        // Dates    planned_start: new Date('2026-01-01'),
+        // Dates
+        planned_start: new Date('2026-01-01'),
         planned_finish: new Date('2026-01-31'),
         planned_duration_days: 1,
         actual_start: null,
@@ -68,7 +74,7 @@ function createTestTask(overrides: Partial<TaskWithStatus>): TaskWithStatus {
         planned_progress_pct: 0,
         progress_delta_pct: null,
         schedule_bucket: 'on-track',
-        slip_days: null,
+        slip_days: null as unknown as number,
         stale_update_flag: false,
 
         // Weights

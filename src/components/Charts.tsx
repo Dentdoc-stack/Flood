@@ -25,7 +25,20 @@ interface ChartsProps {
 // Custom tooltip for Schedule Health chart
 interface ScheduleHealthTooltipProps {
   active?: boolean;
-  payload?: Array<{ value: number; name: string }>;
+  payload?: Array<{
+    value: number;
+    name: string;
+    payload: {
+      onTrackCount: number;
+      delayedCount: number;
+      unknownCount: number;
+      total: number;
+      onTrackPct: number;
+      delayedPct: number;
+      unknownPct: number;
+      bucket: string;
+    };
+  }>;
   label?: string;
 }
 
@@ -257,10 +270,10 @@ export default function Charts({ tasks }: ChartsProps) {
         });
 
         // Calculate average for sorting
-        row._avgProgress = allDisciplines.reduce((sum, d) => sum + (row[d] || 0), 0) / allDisciplines.length;
+        row._avgProgress = allDisciplines.reduce((sum, d) => sum + ((row[d] as number) || 0), 0) / allDisciplines.length;
 
         return row;
-      }).sort((a, b) => b._avgProgress - a._avgProgress);
+      }).sort((a, b) => (b._avgProgress as number) - (a._avgProgress as number));
 
       return {
         mode: 'site' as const,
@@ -307,7 +320,7 @@ export default function Charts({ tasks }: ChartsProps) {
 
     // Create grouped bar data (each discipline is independent 0-100%)
     const chartData = Array.from(districtDisciplineMap.entries()).map(([district, disciplineMap]) => {
-      const row: any = { district };
+      const row: Record<string, string | number> = { district };
 
       allDisciplines.forEach(discipline => {
         const data = disciplineMap.get(discipline);
@@ -335,8 +348,8 @@ export default function Charts({ tasks }: ChartsProps) {
 
     // Sort by average progress across all disciplines
     chartData.sort((a, b) => {
-      const avgA = allDisciplines.reduce((sum, d) => sum + (a[d] || 0), 0) / allDisciplines.size;
-      const avgB = allDisciplines.reduce((sum, d) => sum + (b[d] || 0), 0) / allDisciplines.size;
+      const avgA = allDisciplines.reduce((sum, d) => sum + ((a[d] as number) || 0), 0) / allDisciplines.length;
+      const avgB = allDisciplines.reduce((sum, d) => sum + ((b[d] as number) || 0), 0) / allDisciplines.length;
       return avgB - avgA;
     });
 
@@ -437,20 +450,7 @@ export default function Charts({ tasks }: ChartsProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="bucket" />
               <YAxis label={{ value: '% of Sites', angle: -90, position: 'insideLeft' }} />
-              <Tooltip
-                formatter={(value: number, name: string, props) => {
-                  const item = props.payload;
-                  const displayName = name === 'onTrackPct' ? 'On Track' : name === 'delayedPct' ? 'Delayed' : 'Unknown';
-                  const count = name === 'onTrackPct'
-                    ? item.onTrackCount
-                    : name === 'delayedPct'
-                      ? item.delayedCount
-                      : item.unknownCount;
-                  const pct = typeof value === 'number' ? value.toFixed(1) : value;
-                  return [`${count} sites (${pct}%)`, displayName];
-                }}
-                cursor={{ fill: 'rgba(0, 0, 0, 0.1)' }}
-              />
+              <Tooltip content={<ScheduleHealthTooltip />} cursor={{ fill: 'rgba(0, 0, 0, 0.1)' }} />
               <Legend
                 formatter={(value: string) => {
                   if (value === 'onTrackPct') return 'On Track';

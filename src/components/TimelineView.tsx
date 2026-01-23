@@ -33,7 +33,7 @@ export default function TimelineView({ tasks }: TimelineViewProps) {
     const [monthOffset, setMonthOffset] = useState(0);
 
     // Calculate date range
-    const { minDate, monthsToShow } = useMemo(() => {
+    const { minDate } = useMemo(() => {
         const dates: number[] = [];
         tasks.forEach(task => {
             if (task.planned_start) dates.push(new Date(task.planned_start).getTime());

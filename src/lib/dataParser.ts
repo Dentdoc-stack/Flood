@@ -314,7 +314,7 @@ export function computeTaskStatus(task: Task): TaskWithStatus {
   }
 
   // Photo resolution
-  const coverResult = resolvePhotoURL(task.cover_photo_direct_url, task.cover_photo_share_url);
+  // const coverResult = resolvePhotoURL(task.cover_photo_direct_url, task.cover_photo_share_url);
   const beforeResult = resolvePhotoURL(task.before_photo_direct_url, task.before_photo_share_url);
   const afterResult = resolvePhotoURL(task.after_photo_direct_url, task.after_photo_share_url);
 

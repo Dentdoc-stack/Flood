@@ -5,6 +5,7 @@
 
 import { SHEET_SOURCES, CONFIG } from './config';
 import type { Task } from '@/types';
+import { parseDMY } from '../dataParser';
 
 interface RawSheetRow {
     [key: string]: string | number | null;
@@ -136,15 +137,15 @@ export function mapRowToTask(row: RawSheetRow, packageId: string, packageName: s
             site_name: getValue('Site Name', 'site_name'),
             discipline: getValue('Discipline', 'discipline'),
             task_name: getValue('Task Name', 'task_name'),
-            planned_start: getValue('Planned Start', 'planned_start'),
-            planned_finish: getValue('Planned Finish', 'planned_finish'),
+            planned_start: parseDMY(getValue('Planned Start', 'planned_start')),
+            planned_finish: parseDMY(getValue('Planned Finish', 'planned_finish')),
             planned_duration_days: getNumber('Planned Duration (Days)', 'planned_duration_days'),
-            actual_start: getValue('Actual Start', 'actual_start'),
-            actual_finish: getValue('Actual Finish', 'actual_finish'),
+            actual_start: parseDMY(getValue('Actual Start', 'actual_start')),
+            actual_finish: parseDMY(getValue('Actual Finish', 'actual_finish')),
             progress_pct: getNumber('Progress %', 'progress_pct'),
-            Variance: getValue('Variance', 'Variance'),
+            Variance: getNumber('Variance', 'Variance'),
             delay_flag_calc: getValue('Delay Flag', 'delay_flag_calc'),
-            last_updated: getValue('Last Updated', 'last_updated'),
+            last_updated: parseDMY(getValue('Last Updated', 'last_updated')),
             remarks: getValue('Remarks', 'remarks'),
             photo_folder_url: getValue('Photo Folder', 'photo_folder_url'),
             cover_photo_share_url: getValue('Cover Photo', 'cover_photo_share_url'),
