@@ -29,6 +29,11 @@ interface ScheduleHealthTooltipProps {
   label?: string;
 }
 
+const ScheduleHealthTooltip = ({ active, payload, label }: ScheduleHealthTooltipProps) => {
+  if (!active || !payload || payload.length === 0) {
+    return null;
+  }
+
   // Get the full row data from the first payload item
   const data = payload[0].payload;
 
