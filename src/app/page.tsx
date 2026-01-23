@@ -63,8 +63,8 @@ export default function Home() {
           <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">Error Loading Data</h2>
           <p className="text-gray-600 mb-4 text-center">{error}</p>
           <p className="text-sm text-gray-500 mb-6 text-center">
-            Make sure the Google Sheets are shared with "Anyone with the link"
-            and have a tab named "Data_Entry".
+            Make sure the Google Sheets are shared with &quot;Anyone with the link&quot;
+            and have a tab named &quot;Data_Entry&quot;.
           </p>
           <Button onClick={() => loadData().finally(() => setLoading(false))} className="w-full">
             Try Again

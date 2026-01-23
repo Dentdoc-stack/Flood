@@ -168,7 +168,7 @@ export default function GlobalSearch({ tasks, onSelectResult }: GlobalSearchProp
                                 </div>
                             ) : query.length >= 2 ? (
                                 <div className="p-8 text-center text-muted-foreground">
-                                    No results found for "{query}"
+                                    No results found for &quot;{query}&quot;
                                 </div>
                             ) : (
                                 <div className="p-8 text-center text-muted-foreground">

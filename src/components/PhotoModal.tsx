@@ -1,6 +1,6 @@
 'use client';
 
-import { X, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface PhotoModalProps {
@@ -52,6 +52,7 @@ export default function PhotoModal({
                         <div>
                             <h3 className="text-sm font-semibold text-muted-foreground mb-3">Cover Photo</h3>
                             <div className="rounded-lg overflow-hidden border bg-muted">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={coverPhoto}
                                     alt="Cover"
@@ -76,6 +77,7 @@ export default function PhotoModal({
                                     </div>
                                     <div className="rounded-lg overflow-hidden border bg-muted aspect-video">
                                         {beforePhoto ? (
+                                            /* eslint-disable-next-line @next/next/no-img-element */
                                             <img
                                                 src={beforePhoto}
                                                 alt="Before"
@@ -99,6 +101,7 @@ export default function PhotoModal({
                                     </div>
                                     <div className="rounded-lg overflow-hidden border bg-muted aspect-video">
                                         {afterPhoto ? (
+                                            /* eslint-disable-next-line @next/next/no-img-element */
                                             <img
                                                 src={afterPhoto}
                                                 alt="After"

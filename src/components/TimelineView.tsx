@@ -33,7 +33,7 @@ export default function TimelineView({ tasks }: TimelineViewProps) {
     const [monthOffset, setMonthOffset] = useState(0);
 
     // Calculate date range
-    const { minDate, maxDate, monthsToShow } = useMemo(() => {
+    const { minDate, monthsToShow } = useMemo(() => {
         const dates: number[] = [];
         tasks.forEach(task => {
             if (task.planned_start) dates.push(new Date(task.planned_start).getTime());
@@ -44,7 +44,6 @@ export default function TimelineView({ tasks }: TimelineViewProps) {
             const now = new Date();
             return {
                 minDate: now,
-                maxDate: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000),
                 monthsToShow: 3,
             };
         }
@@ -53,7 +52,7 @@ export default function TimelineView({ tasks }: TimelineViewProps) {
         const max = new Date(Math.max(...dates));
         const months = Math.ceil((max.getTime() - min.getTime()) / (30 * 24 * 60 * 60 * 1000)) + 1;
 
-        return { minDate: min, maxDate: max, monthsToShow: Math.max(3, Math.min(12, months)) };
+        return { minDate: min, monthsToShow: Math.max(3, Math.min(12, months)) };
     }, [tasks]);
 
     // Calculate visible month range

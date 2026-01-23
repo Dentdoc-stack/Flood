@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { taskSchema, Task, TaskWithStatus, DateTriple, TaskStatus, ScheduleBucket, EvidenceStatus, PhotoStatus, QualityFlag } from '@/types';
+import { taskSchema, Task, TaskWithStatus, TaskStatus, ScheduleBucket, EvidenceStatus, PhotoStatus, QualityFlag } from '@/types';
 
 // Enable strict date parsing
 dayjs.extend(customParseFormat);
@@ -15,7 +15,7 @@ const ATRISK_LOW = -25;
 /**
  * Parse DD-MM-YYYY or DD/MM/YYYY date strings strictly
  */
-export function parseDMY(value: any): Date | null {
+export function parseDMY(value: unknown): Date | null {
   if (!value) return null;
 
   // Handle Excel serial dates (numbers)

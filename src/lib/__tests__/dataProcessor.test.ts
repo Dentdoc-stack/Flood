@@ -219,7 +219,7 @@ describe('Site Progress Calculation Bug Fix', () => {
             createTestTask({
                 task_name: 'Task 2',
                 progress_pct: null,
-                planned_duration_days: null as any, // Edge case: null duration
+                planned_duration_days: null as unknown as number, // Edge case: null duration
                 weight: 1, // Should default to 1
             }),
         ];

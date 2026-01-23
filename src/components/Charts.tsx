@@ -25,14 +25,9 @@ interface ChartsProps {
 // Custom tooltip for Schedule Health chart
 interface ScheduleHealthTooltipProps {
   active?: boolean;
-  payload?: any[];
+  payload?: Array<{ value: number; name: string }>;
   label?: string;
 }
-
-const ScheduleHealthTooltip = ({ active, payload, label }: ScheduleHealthTooltipProps) => {
-  if (!active || !payload || payload.length === 0) {
-    return null;
-  }
 
   // Get the full row data from the first payload item
   const data = payload[0].payload;
@@ -242,7 +237,7 @@ export default function Charts({ tasks }: ChartsProps) {
 
       // Build grouped bar data for sites
       const siteData = Array.from(siteMap.entries()).map(([siteKey, site]) => {
-        const row: any = { label: site.name };
+        const row: Record<string, string | number> = { label: site.name };
 
         const disciplineMap = siteDisciplineMap.get(siteKey);
         allDisciplines.forEach(discipline => {
