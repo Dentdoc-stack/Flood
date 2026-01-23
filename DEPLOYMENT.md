@@ -32,11 +32,17 @@ If you don't want to install anything on your computer, you can use **Cloud Shel
 
 ## Method 3: Connect to GitHub (Continuous Deployment)
 
-1. Push your code to a GitHub repository.
-2. Go to **Cloud Run** in Google Cloud Console.
-3. Click **Create Service**.
-4. Select **Continuously deploy new revisions from a source repository**.
-5. Connect your GitHub repo and click **Create**.
+Use this when you want Cloud Run to redeploy automatically on every push.
+
+1. Push your code to GitHub (main branch recommended).
+2. In Google Cloud Console, open **Cloud Run** → **Create service**.
+3. Under **Source**, choose **Cloud Build** (not Developer Connect) and click **Set up Cloud Build**. Authorize if prompted.
+4. Pick your GitHub repo and branch; choose build type **Dockerfile** (uses the repo’s Dockerfile at the root).
+5. In **Configure**, set:
+   - **Service name**: e.g., `flood-dashboard` (required).
+   - **Region**: pick the target region (e.g., `asia-southeast1` to match the screenshot, or your preferred region close to users).
+   - **Authentication**: check **Allow unauthenticated invocations** unless you plan to secure access.
+6. Click **Create**. Cloud Build will run; the first deploy may take a few minutes. Future pushes to the selected branch will trigger new revisions automatically.
 
 ---
 
