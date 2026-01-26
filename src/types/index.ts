@@ -148,3 +148,18 @@ export interface FilterState {
   dateRangeEnd: Date | null;
   showOnlyDelayed: boolean;
 }
+
+// Package-level compliance status
+export type ComplianceStatus = 'COMPLIANT' | 'NON_COMPLIANT' | 'UNKNOWN';
+
+// Package compliance data (read from V2:X2 in each sheet)
+export interface PackageCompliance {
+  no_of_staff_rfb: 'Yes' | 'No' | null;
+  cesmps_submitted: 'Yes' | 'No' | null;
+  ohs_measures: 'Yes' | 'No' | null;
+  status: ComplianceStatus;
+  issues: string[];
+}
+
+// Map of package_id -> compliance
+export type PackageComplianceMap = Record<string, PackageCompliance>;

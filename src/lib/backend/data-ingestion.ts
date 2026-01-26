@@ -3,16 +3,17 @@
  * Fetches Google Sheets, processes tasks with status computation, deduplicates
  */
 
-import { fetchAllSheets, mapRowToTask } from './google-sheets-client';
+import { fetchAllSheets, mapRowToTask, fetchAllComplianceData } from './google-sheets-client';
 import { computeTaskStatus } from '../dataParser';
 import { groupTasksBySite, computeKPIs } from '../dataProcessor';
 import { SHEET_SOURCES } from './config';
-import type { Task, TaskWithStatus, SiteAggregate, DashboardKPIs } from '@/types';
+import type { Task, TaskWithStatus, SiteAggregate, DashboardKPIs, PackageComplianceMap } from '@/types';
 
 export interface IngestedData {
     tasks: TaskWithStatus[];
     sites: SiteAggregate[];
     kpis: DashboardKPIs;
+    packageCompliance: PackageComplianceMap;
     lastRefresh: Date;
     source: 'google-sheets';
     _metadata: {
@@ -30,8 +31,17 @@ export async function ingestAllSheets(): Promise<IngestedData> {
     console.log('=== STARTING DATA INGESTION ===');
     const startTime = Date.now();
 
-    // Step 1: Fetch all sheets
-    const sheetsData = await fetchAllSheets();
+    // Step 1: Fetch all sheets and compliance data in parallel
+    const [sheetsData, complianceData] = await Promise.all([
+        fetchAllSheets(),
+        fetchAllComplianceData(),
+    ]);
+
+    // Convert compliance Map to Record
+    const packageCompliance: PackageComplianceMap = {};
+    complianceData.forEach((value, key) => {
+        packageCompliance[key] = value;
+    });
 
     // Step 2: Map to Task objects
     const rawTasks: Task[] = [];
@@ -75,6 +85,11 @@ export async function ingestAllSheets(): Promise<IngestedData> {
     // Step 7: Validate data integrity
     validateDataIntegrity(tasks, sites, kpis);
 
+    // Log compliance summary
+    const compliantCount = Object.values(packageCompliance).filter(c => c.status === 'COMPLIANT').length;
+    const nonCompliantCount = Object.values(packageCompliance).filter(c => c.status === 'NON_COMPLIANT').length;
+    console.log(`Package compliance: ${compliantCount} compliant, ${nonCompliantCount} non-compliant`);
+
     const endTime = Date.now();
     console.log(`=== INGESTION COMPLETE (${endTime - startTime}ms) ===`);
 
@@ -82,6 +97,7 @@ export async function ingestAllSheets(): Promise<IngestedData> {
         tasks,
         sites,
         kpis,
+        packageCompliance,
         lastRefresh: new Date(),
         source: 'google-sheets',
         _metadata: {

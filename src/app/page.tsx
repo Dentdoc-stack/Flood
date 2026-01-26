@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TaskWithStatus } from '@/types';
+import { TaskWithStatus, PackageComplianceMap } from '@/types';
 import { fetchAllGoogleSheets } from '@/lib/googleSheetsFetcher';
 import Dashboard from '@/components/Dashboard';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function Home() {
   const [tasks, setTasks] = useState<TaskWithStatus[] | null>(null);
+  const [packageCompliance, setPackageCompliance] = useState<PackageComplianceMap | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,11 +18,25 @@ export default function Home() {
   const loadData = async () => {
     try {
       console.log('Loading data from Google Sheets...');
-      const fetchedTasks = await fetchAllGoogleSheets();
+      
+      // Fetch tasks and compliance data in parallel
+      const [fetchedTasks, complianceResponse] = await Promise.all([
+        fetchAllGoogleSheets(),
+        fetch('/api/compliance').then(res => res.ok ? res.json() : null).catch(() => null),
+      ]);
 
       setTasks(fetchedTasks);
       setLastRefresh(new Date());
       setError(null);
+
+      // Set compliance data if available
+      if (complianceResponse?.packageCompliance) {
+        setPackageCompliance(complianceResponse.packageCompliance);
+        console.log('✅ Compliance data loaded:', complianceResponse.summary);
+      } else {
+        console.warn('⚠️ Compliance data not available');
+        setPackageCompliance(null);
+      }
 
       console.log(`✅ Successfully loaded ${fetchedTasks.length} tasks`);
     } catch (err) {
@@ -104,7 +119,7 @@ export default function Home() {
           </div>
         </div>
 
-        <Dashboard tasks={tasks} onReset={() => { }} />
+        <Dashboard tasks={tasks} packageCompliance={packageCompliance} onReset={() => { }} />
       </div>
     );
   }

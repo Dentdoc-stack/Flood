@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useCallback } from 'react';
-import { TaskWithStatus, FilterState } from '@/types';
+import { TaskWithStatus, FilterState, PackageComplianceMap } from '@/types';
 import {
   groupTasksBySite,
   computeKPIs,
@@ -14,16 +14,18 @@ import Charts from './Charts';
 import SiteTable from './SiteTable';
 import AlertBanner from './AlertBanner';
 import GlobalSearch from './GlobalSearch';
+import PackageComplianceCard from './PackageComplianceCard';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface DashboardProps {
   tasks: TaskWithStatus[];
+  packageCompliance?: PackageComplianceMap | null;
   onReset: () => void;
 }
 
-export default function Dashboard({ tasks, onReset }: DashboardProps) {
+export default function Dashboard({ tasks, packageCompliance, onReset }: DashboardProps) {
   const [filters, setFilters] = useState<FilterState>({
     packageNames: [],
     districts: [],
@@ -149,6 +151,14 @@ export default function Dashboard({ tasks, onReset }: DashboardProps) {
       <div className="container mx-auto px-4 py-8">
         {/* KPI Cards */}
         <KPICards kpis={kpis} />
+
+        {/* Package Compliance Card */}
+        {packageCompliance && (
+          <PackageComplianceCard
+            packageCompliance={packageCompliance}
+            selectedPackages={filters.packageNames}
+          />
+        )}
 
         {/* Alert Banner */}
         <AlertBanner tasks={tasks} onFilterClick={handleQuickFilter} />

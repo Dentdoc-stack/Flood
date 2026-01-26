@@ -5,7 +5,7 @@
 
 import { ingestAllSheets, type IngestedData } from './data-ingestion';
 import { CONFIG } from './config';
-import type { TaskWithStatus, SiteAggregate } from '@/types';
+import type { TaskWithStatus, SiteAggregate, PackageComplianceMap } from '@/types';
 
 class DataCache {
     private data: IngestedData | null = null;
@@ -125,6 +125,16 @@ class DataCache {
             throw new Error('Cache not initialized');
         }
         return this.data;
+    }
+
+    /**
+     * Get package compliance data
+     */
+    getPackageCompliance(): PackageComplianceMap {
+        if (!this.data) {
+            throw new Error('Cache not initialized');
+        }
+        return this.data.packageCompliance;
     }
 
     /**

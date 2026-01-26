@@ -82,6 +82,7 @@ export default async function handler(
         return res.status(200).json({
             success: true,
             kpis: data.kpis,
+            packageCompliance: data.packageCompliance,
             delayStatusBreakdown,
             scheduleHealthByStage,
             _assertions: assertions,
