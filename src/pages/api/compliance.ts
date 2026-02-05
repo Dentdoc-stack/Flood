@@ -5,11 +5,12 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dataCache } from '@/lib/backend/cache';
-import type { PackageComplianceMap, ComplianceStatus } from '@/types';
+import type { PackageComplianceMap, IPCData } from '@/types';
 
 interface ComplianceResponse {
     success: boolean;
     packageCompliance: PackageComplianceMap;
+    ipcDataByPackage: Record<string, IPCData>;
     summary: {
         compliant: number;
         nonCompliant: number;
@@ -48,6 +49,7 @@ export default async function handler(
         return res.status(200).json({
             success: true,
             packageCompliance,
+            ipcDataByPackage: data.ipcDataByPackage,
             summary,
             lastRefresh: data.lastRefresh,
         });

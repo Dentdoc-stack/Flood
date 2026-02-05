@@ -1,19 +1,21 @@
 'use client';
 
 import { useMemo, useState, useCallback } from 'react';
-import { TaskWithStatus, FilterState, PackageComplianceMap } from '@/types';
+import { TaskWithStatus, FilterState, PackageComplianceMap, IPCData } from '@/types';
 import {
   groupTasksBySite,
   computeKPIs,
   applyFilters,
   getFilterOptions
 } from '@/lib/dataProcessor';
+import { SHEET_SOURCES } from '@/lib/backend/config';
 import KPICards from './KPICards';
 import Filters from './Filters';
 import Charts from './Charts';
 import SiteTable from './SiteTable';
 import AlertBanner from './AlertBanner';
 import GlobalSearch from './GlobalSearch';
+import IPCCard from './IPCCard';
 import PackageComplianceCard from './PackageComplianceCard';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,10 +24,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface DashboardProps {
   tasks: TaskWithStatus[];
   packageCompliance?: PackageComplianceMap | null;
+  ipcDataByPackage?: Record<string, IPCData> | null;
   onReset: () => void;
 }
 
-export default function Dashboard({ tasks, packageCompliance, onReset }: DashboardProps) {
+export default function Dashboard({ tasks, packageCompliance, ipcDataByPackage, onReset }: DashboardProps) {
   const [filters, setFilters] = useState<FilterState>({
     packageNames: [],
     districts: [],
@@ -102,6 +105,26 @@ export default function Dashboard({ tasks, packageCompliance, onReset }: Dashboa
   const kpis = useMemo(() => computeKPIs(filteredTasks), [filteredTasks]);
   const filterOptions = useMemo(() => getFilterOptions(tasks), [tasks]);
 
+  // IPC data - always show all packages (project-level view)
+  const filteredIPCData = useMemo(() => {
+    if (!ipcDataByPackage) return null;
+
+    // Always combine records from ALL packages (IPC is project-level)
+    const allPackages = Object.keys(ipcDataByPackage);
+    const combinedRecords = allPackages.flatMap(pkgId => {
+      const pkgData = ipcDataByPackage[pkgId];
+      // Get package name from SHEET_SOURCES config
+      const sheetSource = SHEET_SOURCES.find(s => s.packageId === pkgId);
+      return (pkgData?.records ?? []).map(record => ({
+        ...record,
+        packageId: pkgId,
+        packageName: sheetSource?.packageName || `Package ${pkgId}`,
+      }));
+    });
+
+    return { records: combinedRecords };
+  }, [ipcDataByPackage]);
+
   const lastUpdated = useMemo(() => {
     const dates = filteredTasks
       .map(t => t.last_updated)
@@ -151,6 +174,9 @@ export default function Dashboard({ tasks, packageCompliance, onReset }: Dashboa
       <div className="container mx-auto px-4 py-8">
         {/* KPI Cards */}
         <KPICards kpis={kpis} />
+
+        {/* IPC Card */}
+        {filteredIPCData && <IPCCard ipcData={filteredIPCData} />}
 
         {/* Package Compliance Card */}
         {packageCompliance && (

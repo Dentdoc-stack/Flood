@@ -3,17 +3,18 @@
  * Fetches Google Sheets, processes tasks with status computation, deduplicates
  */
 
-import { fetchAllSheets, mapRowToTask, fetchAllComplianceData } from './google-sheets-client';
+import { fetchAllSheets, mapRowToTask, fetchAllComplianceData, fetchAllIPCDataForPackage } from './google-sheets-client';
 import { computeTaskStatus } from '../dataParser';
 import { groupTasksBySite, computeKPIs } from '../dataProcessor';
 import { SHEET_SOURCES } from './config';
-import type { Task, TaskWithStatus, SiteAggregate, DashboardKPIs, PackageComplianceMap } from '@/types';
+import type { Task, TaskWithStatus, SiteAggregate, DashboardKPIs, PackageComplianceMap, IPCData } from '@/types';
 
 export interface IngestedData {
     tasks: TaskWithStatus[];
     sites: SiteAggregate[];
     kpis: DashboardKPIs;
     packageCompliance: PackageComplianceMap;
+    ipcDataByPackage: Record<string, IPCData>;
     lastRefresh: Date;
     source: 'google-sheets';
     _metadata: {
@@ -31,10 +32,11 @@ export async function ingestAllSheets(): Promise<IngestedData> {
     console.log('=== STARTING DATA INGESTION ===');
     const startTime = Date.now();
 
-    // Step 1: Fetch all sheets and compliance data in parallel
-    const [sheetsData, complianceData] = await Promise.all([
+    // Step 1: Fetch all sheets, compliance data, and IPC data in parallel
+    const [sheetsData, complianceData, ...ipcDataArray] = await Promise.all([
         fetchAllSheets(),
         fetchAllComplianceData(),
+        ...SHEET_SOURCES.map(source => fetchAllIPCDataForPackage(source.packageId)),
     ]);
 
     // Convert compliance Map to Record
@@ -42,6 +44,15 @@ export async function ingestAllSheets(): Promise<IngestedData> {
     complianceData.forEach((value, key) => {
         packageCompliance[key] = value;
     });
+
+    // Convert IPC data array to Record indexed by packageId
+    const ipcDataByPackage: Record<string, IPCData> = {};
+    SHEET_SOURCES.forEach((source, index) => {
+        ipcDataByPackage[source.packageId] = ipcDataArray[index];
+    });
+
+    console.log('[Ingestion] IPC data fetched for all packages:', Object.keys(ipcDataByPackage));
+
 
     // Step 2: Map to Task objects
     const rawTasks: Task[] = [];
@@ -98,6 +109,7 @@ export async function ingestAllSheets(): Promise<IngestedData> {
         sites,
         kpis,
         packageCompliance,
+        ipcDataByPackage,
         lastRefresh: new Date(),
         source: 'google-sheets',
         _metadata: {
